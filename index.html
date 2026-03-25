@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Handwritten Digit Recognition</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f4f4;
+            color: #333;
+        }
+        header {
+            background: #1e3a8a;
+            padding: 25px;
+            text-align: center;
+            color: white;
+            font-size: 32px;
+            font-weight: bold;
+        }
+        nav {
+            background: #0f172a;
+            padding: 12px;
+            text-align: center;
+        }
+        nav a {
+            color: white;
+            margin: 0 15px;
+            text-decoration: none;
+            font-size: 18px;
+        }
+        nav a:hover {
+            color: #60a5fa;
+        }
+        section {
+            max-width: 900px;
+            margin: 30px auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+        }
+        h2 { color: #1e3a8a; }
+
+        #upload-box {
+            margin-top: 20px;
+            padding: 20px;
+            border: 2px dashed #1e3a8a;
+            border-radius: 10px;
+            text-align: center;
+        }
+        #preview {
+            margin-top: 20px;
+            max-width: 200px;
+        }
+        button {
+            padding: 10px 20px;
+            background: #1e3a8a;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        footer {
+            margin-top: 40px;
+            background: #0f172a;
+            color: white;
+            text-align: center;
+            padding: 15px;
+        }
+    </style>
+</head>
+<body>
+
+<header>Handwritten Digit Recognition</header>
+
+<nav>
+    <a href="#about">About</a>
+    <a href="#demo">Demo</a>
+</nav>
+
+<section id="about">
+    <h2>About This System</h2>
+    <p>
+        Upload any handwritten digit image (0–9) and the trained AI model will predict which digit it is.
+        This website connects to a Flask backend running your CNN model.
+    </p>
+</section>
+
+<section id="demo">
+    <h2>Try It Yourself</h2>
+    <p>Upload an image and click Predict.</p>
+
+    <div id="upload-box">
+        <input type="file" id="imageInput" accept="image/*"><br>
+        <img id="preview" />
+        <br>
+        <button id="predictBtn">Predict Digit</button>
+        <p id="result" style="font-size:20px; font-weight:bold;"></p>
+    </div>
+</section>
+
+<script>
+// preview image
+const input = document.getElementById("imageInput");
+const preview = document.getElementById("preview");
+const result = document.getElementById("result");
+const btn = document.getElementById("predictBtn");
+
+input.addEventListener("change", function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        preview.src = URL.createObjectURL(file);
+        result.textContent = "";
+    }
+});
+
+btn.addEventListener("click", async function() {
+    const file = input.files[0];
+    if (!file) {
+        result.textContent = "Please upload an image first.";
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    result.textContent = "Predicting...";
+
+    try {
+        const response = await fetch("http://127.0.0.1:5000/predict", {
+            method: "POST",
+            body: formData
+        });
+
+        const data = await response.json();
+
+        result.textContent = "Prediction: " + data.prediction;
+    } catch (error) {
+        result.textContent = "Error: Could not connect to backend.";
+    }
+});
+</script>
+
+<footer>© 2025 | Digit Recognition AI</footer>
+
+</body>
+</html>
